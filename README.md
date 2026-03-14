@@ -1,16 +1,6 @@
-<div align="center">
-  <img alt="Socratic LLM banner" height="220px" src="./resources/banner.png">
-</div>
+# Guided-Tour LLM
 
-# Socratic LLM
-
-Train and run a “Socratic tutor” LLM: instead of giving the final answer, it asks short, targeted questions that help a student reason their way to the solution.
-
-This repo includes:
-
-- Prompt templates for inference and evaluation (`templates/inference.txt`, `templates/judge_llm.txt`)
-- Scripts to generate a preference dataset and fine-tune an instruct model with Direct Preference Optimization (DPO)
-- A small Gradio chatbot demo (`chatbot/socratic_ui.py`)
+Train and run a Guided tutor” LLM: instead of giving the final answer, it asks short, targeted questions that help a student reason their way to the solution.
 
 ## How the model works (high level)
 
@@ -28,7 +18,7 @@ This repo includes:
 The training code is fully scripted and lives in `src/`:
 
 1. **Start from an instruct model** (default: `microsoft/Phi-3-mini-4k-instruct`).
-2. **Generate candidate tutor replies** for each seed prompt (see `datasets/*_train.json`) using the Socratic inference template in `templates/inference.txt` (the generator samples 5 candidates per prompt).
+2. **Generate candidate tutor replies** for each seed prompt (see `datasets/*_train.json`) using the Guided inference template in `templates/inference.txt` (the generator samples 5 candidates per prompt).
 3. **Score each candidate** with a judge LLM using `templates/judge_llm.txt`, then convert the rubric into a single summary score.
 4. **Build DPO pairs** by taking the best-scoring candidate as **chosen** and the worst-scoring candidate as **rejected** (`src/gen_train_dataset.py` writes `train_dataset.json`).
 5. **Fine-tune with DPO** using TRL’s `DPOTrainer` (`src/train.py`). It trains the model against a frozen reference model initialized from the same base checkpoint.
@@ -66,14 +56,6 @@ python src/pipeline.py \
 
 Note: dataset generation and training scripts assume a CUDA GPU (`device_map="cuda"`).
 
-### Run the chatbot demo
-
-```bash
-python chatbot/socratic_ui.py --server-port 2121
-```
-
-Then open `http://localhost:2121`.
-
 ## Prompting / examples
 
 The scripts and demo use a simple plain-text dialogue format:
@@ -106,7 +88,3 @@ You can tweak the behavior without re-training by editing `templates/inference.t
 - `src/train.py` – fine-tune with DPO
 - `src/eval_model.py` / `src/self_eval.py` – evaluate a model (or prompt-only baseline)
 - `src/pipeline.py` – run everything end-to-end
-
-## License
-
-MIT — see `LICENSE`.
